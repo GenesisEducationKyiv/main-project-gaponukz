@@ -11,8 +11,12 @@ type JsonFileUserStorage struct {
 	Filename string
 }
 
-func (strg JsonFileUserStorage) GetAll() ([]entities.User, error) {
-	jsonFile, err := os.Open(strg.Filename)
+func NewJsonFileUserStorage(filename string) *JsonFileUserStorage {
+	return &JsonFileUserStorage{Filename: filename}
+}
+
+func (s JsonFileUserStorage) GetAll() ([]entities.User, error) {
+	jsonFile, err := os.Open(s.Filename)
 
 	if err != nil {
 		return nil, err
@@ -26,26 +30,26 @@ func (strg JsonFileUserStorage) GetAll() ([]entities.User, error) {
 	return users, nil
 }
 
-func (strg JsonFileUserStorage) Create(user entities.User) error {
-	users, err := strg.GetAll()
+func (s JsonFileUserStorage) Create(user entities.User) error {
+	users, err := s.GetAll()
 
 	if err != nil {
 		return err
 	}
 
 	users = append(users, user)
-	err = strg.writeUsers(users)
+	err = s.writeUsers(users)
 
 	return err
 }
 
-func (strg JsonFileUserStorage) writeUsers(users []entities.User) error {
+func (s JsonFileUserStorage) writeUsers(users []entities.User) error {
 	usersJSON, err := json.MarshalIndent(users, "", " ")
 	if err != nil {
 		return err
 	}
 
-	file, err := os.Create(strg.Filename)
+	file, err := os.Create(s.Filename)
 	if err != nil {
 		return err
 	}

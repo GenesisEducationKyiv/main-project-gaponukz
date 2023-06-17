@@ -7,13 +7,13 @@ import (
 	"net/http"
 )
 
-type IRateExporter interface {
-	GetCurrentBTCPrice() (float64, error)
-}
-
 type CoingeckoExporter struct{}
 
-func (exp CoingeckoExporter) GetCurrentBTCPrice() (float64, error) {
+func NewCoingeckoExporter() *CoingeckoExporter {
+	return &CoingeckoExporter{}
+}
+
+func (e CoingeckoExporter) GetCurrentBTCPrice() (float64, error) {
 	var apiResponse map[string]map[string]float64
 	const ApiUrl = "https://api.coingecko.com/api/v3/simple/price"
 	response, err := http.Get(fmt.Sprintf("%s?ids=bitcoin&vs_currencies=uah", ApiUrl))
