@@ -6,13 +6,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type DotEnvSettings struct{}
+type dotEnvSettings struct{}
 
-func NewDotEnvSettings() *DotEnvSettings {
-	return &DotEnvSettings{}
+func NewDotEnvSettings() *dotEnvSettings {
+	return &dotEnvSettings{}
 }
 
-func (sts DotEnvSettings) Load() Settings {
+func (sts dotEnvSettings) Load() Settings {
 	godotenv.Load()
 
 	return Settings{

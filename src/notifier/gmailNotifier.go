@@ -5,19 +5,19 @@ import (
 	"net/smtp"
 )
 
-type GmailNotifier struct {
+type gmailNotifier struct {
 	gmail string
 	auth  smtp.Auth
 }
 
-func NewGmailNotifier(gmail, password string) *GmailNotifier {
-	return &GmailNotifier{
+func NewGmailNotifier(gmail, password string) *gmailNotifier {
+	return &gmailNotifier{
 		auth:  smtp.PlainAuth("", gmail, password, "smtp.gmail.com"),
 		gmail: gmail,
 	}
 }
 
-func (n GmailNotifier) Notify(to string, title, body string) error {
+func (n gmailNotifier) Notify(to string, title, body string) error {
 	message := fmt.Sprintf("To: %s\r\nSubject: %s\r\n\r\n%s\r\n", to, title, body)
 
 	return smtp.SendMail(

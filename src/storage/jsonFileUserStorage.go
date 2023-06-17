@@ -7,15 +7,15 @@ import (
 	"os"
 )
 
-type JsonFileUserStorage struct {
+type jsonFileUserStorage struct {
 	Filename string
 }
 
-func NewJsonFileUserStorage(filename string) *JsonFileUserStorage {
-	return &JsonFileUserStorage{Filename: filename}
+func NewJsonFileUserStorage(filename string) *jsonFileUserStorage {
+	return &jsonFileUserStorage{Filename: filename}
 }
 
-func (s JsonFileUserStorage) GetAll() ([]entities.User, error) {
+func (s jsonFileUserStorage) GetAll() ([]entities.User, error) {
 	jsonFile, err := os.Open(s.Filename)
 
 	if err != nil {
@@ -30,7 +30,7 @@ func (s JsonFileUserStorage) GetAll() ([]entities.User, error) {
 	return users, nil
 }
 
-func (s JsonFileUserStorage) Create(user entities.User) error {
+func (s jsonFileUserStorage) Create(user entities.User) error {
 	users, err := s.GetAll()
 
 	if err != nil {
@@ -43,7 +43,7 @@ func (s JsonFileUserStorage) Create(user entities.User) error {
 	return err
 }
 
-func (s JsonFileUserStorage) writeUsers(users []entities.User) error {
+func (s jsonFileUserStorage) writeUsers(users []entities.User) error {
 	usersJSON, err := json.MarshalIndent(users, "", " ")
 	if err != nil {
 		return err
