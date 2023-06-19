@@ -19,5 +19,6 @@ func (sts dotEnvSettings) Load() Settings {
 		Port:          os.Getenv("port"),
 		Gmail:         os.Getenv("gmail"),
 		GmailPassword: os.Getenv("gmailPassword"),
+		GmailServer:   os.Getenv("gmailServer"),
 	}
 }

@@ -15,7 +15,7 @@ func main() {
 	settings := settings.NewDotEnvSettings().Load()
 	storage := storage.NewJsonFileUserStorage("users.json")
 	priceExporter := exporter.NewCoingeckoExporter()
-	notifier := notifier.NewGmailNotifier(settings.Gmail, settings.GmailPassword)
+	notifier := notifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
 	service := usecase.NewService(storage, priceExporter, notifier)
 
 	contr := controller.NewController(service)
