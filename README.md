@@ -14,7 +14,7 @@ Golang version of [gaponukz/GSES2-BTC-application](https://github.com/gaponukz/G
 | POST `/sendEmails` | Send the BTC price to all subscribers of the newsletter. |
 
 ## Some logic explanation
-![image](https://github.com/gaponukz/GSES2-BTC-application/assets/49754258/474fd9cd-2d01-4642-aa65-18cb55323e9d)
+![image](https://github.com/GenesisEducationKyiv/main-project-gaponukz/assets/49754258/0528531f-1220-48c6-8c47-b51fa23f4e51)
 
 ## Settings
 Before usage you need to create `.env` file:
