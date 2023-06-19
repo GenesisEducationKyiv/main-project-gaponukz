@@ -26,8 +26,8 @@ gmailPassword=userpassowrf123
 ## Deploying
 ### From git (locally)
 ```bash
-git clone https://github.com/gaponukz/golang-btcapp.git
-cd golang-btcapp
+git clone https://github.com/GenesisEducationKyiv/main-project-gaponukz.git
+cd main-project-gaponukz
 go mod download
 go build
 ./btcapp
