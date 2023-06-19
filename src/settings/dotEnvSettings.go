@@ -8,8 +8,8 @@ import (
 
 type dotEnvSettings struct{}
 
-func NewDotEnvSettings() *dotEnvSettings {
-	return &dotEnvSettings{}
+func NewDotEnvSettings() dotEnvSettings {
+	return dotEnvSettings{}
 }
 
 func (sts dotEnvSettings) Load() Settings {

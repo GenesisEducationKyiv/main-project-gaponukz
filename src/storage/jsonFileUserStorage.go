@@ -24,7 +24,11 @@ func (s jsonFileUserStorage) GetAll() ([]entities.User, error) {
 	defer jsonFile.Close()
 
 	users := []entities.User{}
-	byteValue, _ := io.ReadAll(jsonFile)
+	byteValue, err := io.ReadAll(jsonFile)
+	if err != nil {
+		return nil, err
+	}
+
 	json.Unmarshal(byteValue, &users)
 
 	return users, nil
