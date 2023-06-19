@@ -38,3 +38,16 @@ go build
 docker pull gaponukz/gobtcapp
 docker run -d -p 8080:8080 --rm --env-file .env gaponukz/gobtcapp 
 ```
+## Usage example
+Get current BTC price
+```
+GET http://localhost:8080/rate
+```
+Subscribe `test@example.com`.
+```
+POST http://localhost:8080/subscribe?gmail=test@example.com
+```
+Send BTC price
+```
+POST http://localhost:8080/sendEmails
+```
