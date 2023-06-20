@@ -1,14 +1,15 @@
-FROM golang:latest
-
-WORKDIR /app
-
-COPY go.mod go.sum ./
-
-RUN go mod download
-
+# Build stage
+FROM golang:alpine AS builder
+RUN apk add --no-cache git
+WORKDIR /go/src/app
 COPY . .
+RUN go get -d -v ./...
+RUN go build -o /go/bin/src/ -v ./...
 
-RUN go build -o gobtcapp
-
+# Final stage
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /go/bin/src/. /btcapp
+ENTRYPOINT ["/btcapp/cmd"]
+LABEL Name=btcapp Version=0.0.1
 EXPOSE 8080
-CMD ["./gobtcapp"]
