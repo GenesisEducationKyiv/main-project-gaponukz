@@ -29,7 +29,10 @@ func (s jsonFileUserStorage) GetAll() ([]entities.User, error) {
 		return nil, err
 	}
 
-	json.Unmarshal(byteValue, &users)
+	err = json.Unmarshal(byteValue, &users)
+	if err != nil {
+		return nil, err
+	}
 
 	return users, nil
 }

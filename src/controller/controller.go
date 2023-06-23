@@ -24,14 +24,13 @@ func NewController(service service) *controller {
 func (c controller) RateRouter(responseWriter http.ResponseWriter, request *http.Request) {
 	btcPrice, err := c.service.GetCurrentPrice()
 
-	if err == nil {
-		stringPrice := strconv.FormatFloat(btcPrice, 'f', -1, 64)
-		responseWriter.Write([]byte(stringPrice))
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	responseWriter.WriteHeader(http.StatusInternalServerError)
-	responseWriter.Write([]byte(""))
+	stringPrice := strconv.FormatFloat(btcPrice, 'f', -1, 64)
+	responseWriter.Write([]byte(stringPrice))
 }
 
 func (c controller) SubscribeRouter(responseWriter http.ResponseWriter, request *http.Request) {

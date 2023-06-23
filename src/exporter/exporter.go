@@ -3,7 +3,7 @@ package exporter
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -23,7 +23,7 @@ func (e coingeckoExporter) GetCurrentBTCPrice() (float64, error) {
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := readResponseBody(response.Body)
 	if err != nil {
 		return 0, err
 	}
@@ -40,4 +40,20 @@ func (e coingeckoExporter) GetCurrentBTCPrice() (float64, error) {
 	}
 
 	return price, nil
+}
+
+func readResponseBody(body io.Reader) ([]byte, error) {
+	var buf []byte
+	for {
+		tmp := make([]byte, 4096)
+		n, err := body.Read(tmp)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if n == 0 {
+			break
+		}
+		buf = append(buf, tmp[:n]...)
+	}
+	return buf, nil
 }

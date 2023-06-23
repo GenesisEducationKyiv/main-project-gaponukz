@@ -48,7 +48,10 @@ func (s service) NotifySubscribers() error {
 	}
 
 	for _, user := range users {
-		s.notier.Notify(user.Gmail, "BTC/UAH price", fmt.Sprintf("%f", btcPrice))
+		err := s.notier.Notify(user.Gmail, "BTC/UAH price", fmt.Sprintf("%f", btcPrice))
+		if err != nil {
+			fmt.Printf("Could not send to %s: %s", user.Gmail, err.Error())
+		}
 	}
 
 	return nil
