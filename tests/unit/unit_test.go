@@ -2,10 +2,24 @@ package unit
 
 import (
 	"btcapp/src/entities"
+	"btcapp/src/exporter"
 	"btcapp/src/usecase"
 	"fmt"
 	"testing"
 )
+
+func TestCoingeckoExporter(t *testing.T) {
+	e := exporter.NewCoingeckoExporter()
+	price, err := e.GetCurrentBTCPrice()
+
+	if err != nil {
+		t.Errorf("Exporter.GetCurrentBTCPrice error: %s", err.Error())
+	}
+
+	if price <= 0 {
+		t.Errorf("price exporter gives wrong data (price: %f)", price)
+	}
+}
 
 func TestSubscribeUser(t *testing.T) {
 	storage := NewStorageMock()
