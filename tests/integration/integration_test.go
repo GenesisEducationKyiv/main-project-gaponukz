@@ -3,23 +3,19 @@ package integration
 import (
 	"btcapp/src/entities"
 	"btcapp/src/storage"
+	"btcapp/src/usecase"
+	"btcapp/tests/mocks"
+	"fmt"
 	"os"
 	"testing"
+
+	"golang.org/x/exp/slices"
 )
 
-type db interface {
-	GetAll() ([]entities.User, error)
-	Create(entities.User) error
-}
+func TestIntegration(t *testing.T) {
+	const testFilename = "test.json"
+	const expectedPrice = 69.69
 
-var testUsers []entities.User = []entities.User{
-	{Gmail: "Alice"},
-	{Gmail: "Bob"},
-	{Gmail: "Carol"},
-}
-
-func TestJsonDatabase(t *testing.T) {
-	testFilename := "test.json"
 	err := os.WriteFile(testFilename, []byte("[]"), 0644)
 	if err != nil {
 		panic(err)
@@ -29,51 +25,40 @@ func TestJsonDatabase(t *testing.T) {
 		os.Remove(testFilename)
 	}()
 
-	s := storage.NewJsonFileUserStorage(testFilename)
+	var currentMessage mocks.Message // last "sended" message
+	db := storage.NewJsonFileUserStorage(testFilename)
+	ex := mocks.NewMockExporter(expectedPrice)
+	n := mocks.NewMockNotifier(func(m mocks.Message) { currentMessage = m })
+	s := usecase.NewService(db, ex, n)
+	testUser1 := entities.User{Gmail: "testuser1"}
 
-	checkEmptiness(s, t)
-	checkCreations(s, t)
-	checkExisting(s, t)
-}
-
-func checkEmptiness(s db, t *testing.T) {
-	users, err := s.GetAll()
+	err = s.SubscribeUser(testUser1)
 	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+		t.Error(err.Error())
 	}
 
-	if len(users) != 0 {
-		t.Errorf("Expected 0 users, got %d", len(users))
-	}
-}
-
-func checkCreations(s db, t *testing.T) {
-	for _, user := range testUsers {
-		err := s.Create(user)
-		if err != nil {
-			t.Errorf("Unexpected error creating user %s: %v", user.Gmail, err)
-		}
-	}
-}
-
-func checkExisting(s db, t *testing.T) {
-	users, err := s.GetAll()
+	users, err := db.GetAll()
 	if err != nil {
-		t.Errorf("Unexpected error stogate.GetAll: %v", err)
+		t.Error(err.Error())
 	}
 
-	for _, testUser := range testUsers {
-		var u *entities.User
+	index := slices.IndexFunc(users, func(u entities.User) bool { return u.Gmail == testUser1.Gmail })
+	if index == -1 {
+		t.Error("user not found in database after subscription")
+	}
 
-		for _, user := range users {
-			if testUser.Gmail == user.Gmail {
-				u = &testUser
-				break
-			}
-		}
+	user := users[index]
+	err = s.NotifySubscribers()
+	if err != nil {
+		t.Error(err.Error())
+	}
 
-		if u == nil {
-			t.Errorf("could not find user %s in database", testUser.Gmail)
-		}
+	if currentMessage.To != user.Gmail {
+		t.Errorf("Expected send to %s, got %s", user.Gmail, currentMessage.To)
+	}
+
+	expectedBody := fmt.Sprintf("%f", expectedPrice)
+	if currentMessage.Body != expectedBody {
+		t.Errorf("Expected msg body %s, got %s", expectedBody, currentMessage.Body)
 	}
 }

@@ -8,24 +8,28 @@ import (
 )
 
 type gmailNotifier struct {
-	gmail       string
-	gmailServer string
-	auth        smtp.Auth
+	gmail          string
+	gmailServer    string
+	auth           smtp.Auth
+	letterTemplate string
 }
 
 func NewGmailNotifier(gmailServer, gmail, password string) *gmailNotifier {
+	letter, err := getGmailLetter("templates/index.html")
+	if err != nil {
+		panic(err)
+	}
+
 	return &gmailNotifier{
-		auth:        smtp.PlainAuth("", gmail, password, gmailServer),
-		gmail:       gmail,
-		gmailServer: gmailServer,
+		auth:           smtp.PlainAuth("", gmail, password, gmailServer),
+		gmail:          gmail,
+		gmailServer:    gmailServer,
+		letterTemplate: letter,
 	}
 }
 
 func (n gmailNotifier) Notify(to string, title, body string) error {
-	letter, err := getGmailLetter("templates/index.html", body)
-	if err != nil {
-		return err
-	}
+	letter := strings.Replace(n.letterTemplate, "{%BTCPRICE%}", body, -1)
 
 	message := []byte(
 		"To: " + to + "\r\n" +
@@ -44,11 +48,11 @@ func (n gmailNotifier) Notify(to string, title, body string) error {
 	)
 }
 
-func getGmailLetter(filename string, content string) (string, error) {
+func getGmailLetter(filename string) (string, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}
 
-	return strings.Replace(string(data), "{%BTCPRICE%}", content, -1), nil
+	return string(data), nil
 }

@@ -4,6 +4,7 @@ import (
 	"btcapp/src/entities"
 	"btcapp/src/exporter"
 	"btcapp/src/usecase"
+	"btcapp/tests/mocks"
 	"fmt"
 	"testing"
 )
@@ -35,7 +36,7 @@ func TestSubscribeUser(t *testing.T) {
 
 func TestGetCurrentPrice(t *testing.T) {
 	const expected = 69.69
-	exporter := NewMockExporter(expected)
+	exporter := mocks.NewMockExporter(expected)
 	service := usecase.NewService(nil, exporter, nil)
 
 	price, err := service.GetCurrentPrice()
@@ -50,13 +51,13 @@ func TestGetCurrentPrice(t *testing.T) {
 }
 
 func TestNotifySubscribers(t *testing.T) {
-	var mess message
+	var mess mocks.Message
 	const expected = 69.69
 
 	user := entities.User{Gmail: "test1"}
 	storage := NewStorageMock()
-	exporter := NewMockExporter(expected)
-	notifier := NewMockNotifier(func(m message) { mess = m })
+	exporter := mocks.NewMockExporter(expected)
+	notifier := mocks.NewMockNotifier(func(m mocks.Message) { mess = m })
 	service := usecase.NewService(storage, exporter, notifier)
 
 	storage.Create(user)
@@ -66,12 +67,12 @@ func TestNotifySubscribers(t *testing.T) {
 		t.Errorf("Errog notifying price: %s", err.Error())
 	}
 
-	if mess.to != user.Gmail {
-		t.Errorf("Expected send to %s, got %s", user.Gmail, mess.to)
+	if mess.To != user.Gmail {
+		t.Errorf("Expected send to %s, got %s", user.Gmail, mess.To)
 	}
 
 	expectedBody := fmt.Sprintf("%f", expected)
-	if mess.body != expectedBody {
-		t.Errorf("Expected msg body %s, got %s", expectedBody, mess.body)
+	if mess.Body != expectedBody {
+		t.Errorf("Expected msg body %s, got %s", expectedBody, mess.Body)
 	}
 }

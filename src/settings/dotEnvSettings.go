@@ -13,7 +13,10 @@ func NewDotEnvSettings() dotEnvSettings {
 }
 
 func (sts dotEnvSettings) Load() Settings {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		return Settings{}
+	}
 
 	return Settings{
 		Port:          os.Getenv("port"),

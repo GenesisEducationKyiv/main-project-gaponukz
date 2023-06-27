@@ -22,5 +22,9 @@ func main() {
 	app := controller.GetApp(contr, settings.Port)
 
 	fmt.Printf("⚡️[server]: Server is running at http://localhost:%s", settings.Port)
-	app.ListenAndServe()
+
+	err := app.ListenAndServe()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
