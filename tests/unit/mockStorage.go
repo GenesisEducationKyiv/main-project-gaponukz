@@ -17,7 +17,7 @@ func (sm *storageMock) Create(user entities.User) error {
 
 func (sm *storageMock) Contains(user entities.User) bool {
 	for _, other := range sm.users {
-		if other.Gmail == other.Gmail {
+		if user.Gmail == other.Gmail {
 			return true
 		}
 	}

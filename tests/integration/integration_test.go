@@ -25,10 +25,10 @@ func TestIntegration(t *testing.T) {
 		os.Remove(testFilename)
 	}()
 
-	var currentMessage mocks.Message // last "sended" message
+	var lastSendedMessage mocks.Message
 	db := storage.NewJsonFileUserStorage(testFilename)
-	ex := mocks.NewMockExporter(expectedPrice)
-	n := mocks.NewMockNotifier(func(m mocks.Message) { currentMessage = m })
+	ex := mocks.NewExporterStub(expectedPrice)
+	n := mocks.NewMockNotifier(func(m mocks.Message) { lastSendedMessage = m })
 	s := usecase.NewService(db, ex, n)
 	testUser1 := entities.User{Gmail: "testuser1"}
 
@@ -53,12 +53,12 @@ func TestIntegration(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if currentMessage.To != user.Gmail {
-		t.Errorf("Expected send to %s, got %s", user.Gmail, currentMessage.To)
+	if lastSendedMessage.To != user.Gmail {
+		t.Errorf("Expected send to %s, got %s", user.Gmail, lastSendedMessage.To)
 	}
 
 	expectedBody := fmt.Sprintf("%f", expectedPrice)
-	if currentMessage.Body != expectedBody {
-		t.Errorf("Expected msg body %s, got %s", expectedBody, currentMessage.Body)
+	if lastSendedMessage.Body != expectedBody {
+		t.Errorf("Expected msg body %s, got %s", expectedBody, lastSendedMessage.Body)
 	}
 }

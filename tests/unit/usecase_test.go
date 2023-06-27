@@ -36,7 +36,7 @@ func TestSubscribeUser(t *testing.T) {
 
 func TestGetCurrentPrice(t *testing.T) {
 	const expected = 69.69
-	exporter := mocks.NewMockExporter(expected)
+	exporter := mocks.NewExporterStub(expected)
 	service := usecase.NewService(nil, exporter, nil)
 
 	price, err := service.GetCurrentPrice()
@@ -56,7 +56,7 @@ func TestNotifySubscribers(t *testing.T) {
 
 	user := entities.User{Gmail: "test1"}
 	storage := NewStorageMock()
-	exporter := mocks.NewMockExporter(expected)
+	exporter := mocks.NewExporterStub(expected)
 	notifier := mocks.NewMockNotifier(func(m mocks.Message) { mess = m })
 	service := usecase.NewService(storage, exporter, notifier)
 

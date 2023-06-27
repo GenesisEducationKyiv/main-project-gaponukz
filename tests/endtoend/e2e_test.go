@@ -15,7 +15,7 @@ import (
 
 const expectedPrice = 69.69
 
-func TestEndToEnd(t *testing.T) {
+func TestHTTPRoutes(t *testing.T) {
 	const freePort = 6969
 	const testFilename = "test.json"
 	err := os.WriteFile(testFilename, []byte("[]"), 0644)
@@ -29,40 +29,40 @@ func TestEndToEnd(t *testing.T) {
 
 	go startTestServer(freePort, testFilename)
 
-	response, err := getBody(formatUrl("rate", freePort))
-	if err != nil {
-		t.Fatal(err.Error())
+	testCases := []struct {
+		method         string
+		endpoint       string
+		expectedResult string
+	}{
+		{"get", "rate", strconv.FormatFloat(expectedPrice, 'f', -1, 64)},
+		{"post", "subscribe?gmail=testuser", "Added"},
+		{"post", "sendEmails", "Sended"},
 	}
 
-	expectedStringPrice := strconv.FormatFloat(expectedPrice, 'f', -1, 64)
-	if expectedStringPrice != response {
-		t.Errorf("expected rate: %s, got %s", expectedStringPrice, response)
-	}
+	for _, tc := range testCases {
+		var err error
+		var response string
 
-	response, err = postBody(formatUrl("subscribe?gmail=testuser", freePort))
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+		if tc.method == "post" {
+			response, err = postBody(formatUrl(tc.endpoint, freePort))
 
-	if response != "Added" {
-		t.Errorf("after subscription expect: Added, got: %s", response)
-	}
+		} else if tc.method == "get" {
+			response, err = getBody(formatUrl(tc.endpoint, freePort))
+		}
 
-	response, err = postBody(formatUrl("sendEmails", freePort))
-	if err != nil {
-		t.Fatal(err.Error())
-	}
+		if err != nil {
+			t.Fatal(err.Error())
+		}
 
-	if response != "Sended" {
-		t.Errorf("after subscription expect: Sended, got: %s", response)
+		if response != tc.expectedResult {
+			t.Errorf("for endpoint '%s', expected: %s, got: %s", tc.endpoint, tc.expectedResult, response)
+		}
 	}
-
-	// TODO: check if user get gmail
 }
 
 func startTestServer(freePort int, testFilename string) {
 	storage := storage.NewJsonFileUserStorage(testFilename)
-	priceExporter := mocks.NewMockExporter(expectedPrice)
+	priceExporter := mocks.NewExporterStub(expectedPrice)
 	notifier := mocks.NewMockNotifier(func(m mocks.Message) {})
 	service := usecase.NewService(storage, priceExporter, notifier)
 
@@ -71,7 +71,7 @@ func startTestServer(freePort int, testFilename string) {
 
 	err := app.ListenAndServe()
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err.Error())
 	}
 }
 

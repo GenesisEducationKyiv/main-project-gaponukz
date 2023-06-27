@@ -15,7 +15,7 @@ func NewDotEnvSettings() dotEnvSettings {
 func (sts dotEnvSettings) Load() Settings {
 	err := godotenv.Load()
 	if err != nil {
-		return Settings{}
+		panic(err.Error())
 	}
 
 	return Settings{
