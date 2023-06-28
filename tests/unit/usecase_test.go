@@ -27,7 +27,10 @@ func TestSubscribeUser(t *testing.T) {
 	service := usecase.NewService(storage, nil, nil)
 	testUser := entities.User{Gmail: "test1"}
 
-	service.SubscribeUser(testUser)
+	err := service.SubscribeUser(testUser)
+	if err != nil {
+		t.Error(err.Error())
+	}
 
 	if !storage.Contains(testUser) {
 		t.Error("after subscription, the user is not saved to storage")
@@ -60,9 +63,12 @@ func TestNotifySubscribers(t *testing.T) {
 	notifier := mocks.NewMockNotifier(func(m mocks.Message) { mess = m })
 	service := usecase.NewService(storage, exporter, notifier)
 
-	storage.Create(user)
+	err := storage.Create(user)
+	if err != nil {
+		t.Error(err.Error())
+	}
 
-	err := service.NotifySubscribers()
+	err = service.NotifySubscribers()
 	if err != nil {
 		t.Errorf("Errog notifying price: %s", err.Error())
 	}
