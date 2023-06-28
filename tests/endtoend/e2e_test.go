@@ -16,7 +16,7 @@ import (
 const expectedPrice = 69.69
 
 func TestHTTPRoutes(t *testing.T) {
-	const freePort = 6969
+	const freePort = 3000
 	const testFilename = "test.json"
 	err := os.WriteFile(testFilename, []byte("[]"), 0644)
 	if err != nil {
