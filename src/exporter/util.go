@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type baseProvider interface {
+	CurrentBTCPrice() (float64, error)
+}
+
 func getJson(url string, target interface{}) error {
 	var myClient = &http.Client{Timeout: 10 * time.Second}
 	r, err := myClient.Get(url)

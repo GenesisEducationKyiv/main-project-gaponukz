@@ -12,11 +12,16 @@ import (
 )
 
 func main() {
+	baseRateProvider := exporter.NewCoingeckoExporter()
+	coinstatsProviderHelper := exporter.NewCoinstatsExporter()
+	kukoinProviderHelper := exporter.NewKucoinExporter()
+	baseRateProvider.SetNext(coinstatsProviderHelper)
+	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
+
 	settings := settings.NewDotEnvSettings().Load()
 	storage := storage.NewJsonFileUserStorage("users.json")
-	priceExporter := exporter.NewCoingeckoExporter()
 	notifier := notifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
-	service := usecase.NewService(storage, priceExporter, notifier)
+	service := usecase.NewService(storage, baseRateProvider, notifier)
 
 	contr := controller.NewController(service)
 	app := controller.GetApp(contr, settings.Port)

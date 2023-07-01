@@ -4,10 +4,12 @@ import (
 	"fmt"
 )
 
-type coingeckoExporter struct{}
+type coingeckoExporter struct {
+	next baseProvider
+}
 
-func NewCoingeckoExporter() *coingeckoExporter {
-	return &coingeckoExporter{}
+func NewCoingeckoExporter() coingeckoExporter {
+	return coingeckoExporter{}
 }
 
 type coingeckoResponse struct {
@@ -17,6 +19,23 @@ type coingeckoResponse struct {
 }
 
 func (e coingeckoExporter) CurrentBTCPrice() (float64, error) {
+	rate, err := e.currentBTCPrice()
+	if err == nil {
+		return rate, nil
+	}
+
+	if e.next == nil {
+		return 0, err
+	}
+
+	return e.next.CurrentBTCPrice()
+}
+
+func (e *coingeckoExporter) SetNext(next baseProvider) {
+	e.next = next
+}
+
+func (e coingeckoExporter) currentBTCPrice() (float64, error) {
 	var apiResponse coingeckoResponse
 	const ApiUrl = "https://api.coingecko.com/api/v3/simple/price"
 

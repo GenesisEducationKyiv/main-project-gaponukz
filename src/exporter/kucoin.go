@@ -5,7 +5,9 @@ import (
 	"strconv"
 )
 
-type kucoinExporter struct{}
+type kucoinExporter struct {
+	next baseProvider
+}
 
 func NewKucoinExporter() kucoinExporter {
 	return kucoinExporter{}
@@ -19,6 +21,23 @@ type kucoinResponse struct {
 }
 
 func (e kucoinExporter) CurrentBTCPrice() (float64, error) {
+	rate, err := e.currentBTCPrice()
+	if err == nil {
+		return rate, nil
+	}
+
+	if e.next == nil {
+		return 0, err
+	}
+
+	return e.next.CurrentBTCPrice()
+}
+
+func (e *kucoinExporter) SetNext(next baseProvider) {
+	e.next = next
+}
+
+func (e kucoinExporter) currentBTCPrice() (float64, error) {
 	var apiResponse kucoinResponse
 	const ApiUrl = "https://api.kucoin.com/api/v1/prices"
 

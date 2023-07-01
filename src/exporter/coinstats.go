@@ -2,7 +2,9 @@ package exporter
 
 import "fmt"
 
-type coinstatsExporter struct{}
+type coinstatsExporter struct {
+	next baseProvider
+}
 
 func NewCoinstatsExporter() coinstatsExporter {
 	return coinstatsExporter{}
@@ -31,6 +33,23 @@ type coinstatsResponse struct {
 }
 
 func (e coinstatsExporter) CurrentBTCPrice() (float64, error) {
+	rate, err := e.currentBTCPrice()
+	if err == nil {
+		return rate, nil
+	}
+
+	if e.next == nil {
+		return 0, err
+	}
+
+	return e.next.CurrentBTCPrice()
+}
+
+func (e *coinstatsExporter) SetNext(next baseProvider) {
+	e.next = next
+}
+
+func (e coinstatsExporter) currentBTCPrice() (float64, error) {
 	var apiResponse coinstatsResponse
 	const ApiUrl = "https://api.coinstats.app/public/v1/coins/bitcoin"
 
