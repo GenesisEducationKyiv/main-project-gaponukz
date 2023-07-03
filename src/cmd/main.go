@@ -15,8 +15,8 @@ func main() {
 	baseRateProvider := exporter.NewCoingeckoExporter()
 	coinstatsProviderHelper := exporter.NewCoinstatsExporter()
 	kukoinProviderHelper := exporter.NewKucoinExporter()
-	baseRateProvider.SetNext(coinstatsProviderHelper)
-	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
+	baseRateProvider.SetNext(&coinstatsProviderHelper)
+	coinstatsProviderHelper.SetNext(&kukoinProviderHelper)
 
 	settings := settings.NewDotEnvSettings().Load()
 	storage := storage.NewJsonFileUserStorage("users.json")

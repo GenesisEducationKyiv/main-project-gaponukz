@@ -2,14 +2,6 @@ package exporter
 
 import "fmt"
 
-type coinstatsExporter struct {
-	next baseProvider
-}
-
-func NewCoinstatsExporter() coinstatsExporter {
-	return coinstatsExporter{}
-}
-
 type coinstatsResponse struct {
 	Coin struct {
 		ID              string   `json:"id"`
@@ -32,31 +24,16 @@ type coinstatsResponse struct {
 	} `json:"coin"`
 }
 
-func (e coinstatsExporter) CurrentBTCPrice() (float64, error) {
-	rate, err := e.currentBTCPrice()
-	if err == nil {
-		return rate, nil
-	}
+func NewCoinstatsExporter() baseProvider {
+	return providerChainFactory("coinstats", func() (float64, error) {
+		var apiResponse coinstatsResponse
+		const ApiUrl = "https://api.coinstats.app/public/v1/coins/bitcoin"
 
-	if e.next == nil {
-		return 0, err
-	}
+		err := getJson(fmt.Sprintf("%s?currency=UAH", ApiUrl), &apiResponse)
+		if err != nil {
+			return 0, err
+		}
 
-	return e.next.CurrentBTCPrice()
-}
-
-func (e *coinstatsExporter) SetNext(next baseProvider) {
-	e.next = next
-}
-
-func (e coinstatsExporter) currentBTCPrice() (float64, error) {
-	var apiResponse coinstatsResponse
-	const ApiUrl = "https://api.coinstats.app/public/v1/coins/bitcoin"
-
-	err := getJson(fmt.Sprintf("%s?currency=UAH", ApiUrl), &apiResponse)
-	if err != nil {
-		return 0, err
-	}
-
-	return apiResponse.Coin.Price, nil
+		return apiResponse.Coin.Price, nil
+	})
 }

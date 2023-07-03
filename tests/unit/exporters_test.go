@@ -7,27 +7,25 @@ import (
 
 type exp interface {
 	CurrentBTCPrice() (float64, error)
+	Name() string
 }
 
 func TestExporters(t *testing.T) {
-	exporters := []struct {
-		name     string
-		provider exp
-	}{
-		{name: "Coingecko", provider: exporter.NewCoingeckoExporter()},
-		{name: "Coinstats", provider: exporter.NewCoinstatsExporter()},
-		{name: "Kucoin", provider: exporter.NewKucoinExporter()},
+	exporters := []exp{
+		exporter.NewCoingeckoExporter(),
+		exporter.NewCoinstatsExporter(),
+		exporter.NewKucoinExporter(),
 	}
 
 	for _, e := range exporters {
-		price, err := e.provider.CurrentBTCPrice()
+		price, err := e.CurrentBTCPrice()
 
 		if err != nil {
-			t.Errorf("%s.CurrentBTCPrice error: %s", e.name, err.Error())
+			t.Errorf("%s.CurrentBTCPrice error: %s", e.Name(), err.Error())
 		}
 
 		if price <= 0 {
-			t.Errorf("%s gives wrong data (price: %f)", e.name, price)
+			t.Errorf("%s gives wrong data (price: %f)", e.Name(), price)
 		}
 	}
 }
@@ -36,8 +34,8 @@ func TestChainOfExporters(t *testing.T) {
 	baseRateProvider := exporter.NewCoingeckoExporter()
 	coinstatsProviderHelper := exporter.NewCoinstatsExporter()
 	kukoinProviderHelper := exporter.NewKucoinExporter()
-	baseRateProvider.SetNext(coinstatsProviderHelper)
-	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
+	baseRateProvider.SetNext(&coinstatsProviderHelper)
+	coinstatsProviderHelper.SetNext(&kukoinProviderHelper)
 
 	price, err := baseRateProvider.CurrentBTCPrice()
 
