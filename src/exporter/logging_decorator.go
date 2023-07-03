@@ -9,17 +9,12 @@ type logger interface {
 	Warn(string)
 }
 
-type rateProvider interface {
-	CurrentBTCPrice() (float64, error)
-	Name() string
-}
-
 type loggingDecorator struct {
-	provider rateProvider
+	provider baseProvider
 	logger   logger
 }
 
-func NewLoggingDecorator(n string, p rateProvider, l logger) loggingDecorator {
+func NewLoggingDecorator(p baseProvider, l logger) loggingDecorator {
 	return loggingDecorator{provider: p, logger: l}
 }
 
@@ -30,8 +25,16 @@ func (d loggingDecorator) CurrentBTCPrice() (float64, error) {
 	if err != nil {
 		d.logger.Warn(fmt.Sprintf("could not get rate with %s because of %v", name, err))
 	} else {
-		d.logger.Info(fmt.Sprintf("current BTC price according to %s is %f", d.provider, rate))
+		d.logger.Info(fmt.Sprintf("current BTC price according to %s is %f", d.provider.Name(), rate))
 	}
 
 	return rate, err
+}
+
+func (d loggingDecorator) Name() string {
+	return d.provider.Name()
+}
+
+func (d loggingDecorator) SetNext(next *baseProvider) {
+	d.provider.SetNext(next)
 }
