@@ -2,13 +2,13 @@ package exporter
 
 type baseProvider interface {
 	CurrentBTCPrice() (float64, error)
-	SetNext(*baseProvider)
+	SetNext(baseProvider)
 	Name() string
 }
 
 type provider struct {
 	name      string
-	next      *baseProvider
+	next      baseProvider
 	fetchRate func() (float64, error)
 }
 
@@ -16,7 +16,7 @@ func providerChainFactory(name string, fetchRate func() (float64, error)) basePr
 	return &provider{name: name, fetchRate: fetchRate}
 }
 
-func (e provider) CurrentBTCPrice() (float64, error) {
+func (e *provider) CurrentBTCPrice() (float64, error) {
 	rate, err := e.fetchRate()
 	if err == nil {
 		return rate, nil
@@ -26,13 +26,13 @@ func (e provider) CurrentBTCPrice() (float64, error) {
 		return 0, err
 	}
 
-	return (*e.next).CurrentBTCPrice()
+	return e.next.CurrentBTCPrice()
 }
 
-func (e provider) Name() string {
+func (e *provider) Name() string {
 	return e.name
 }
 
-func (e *provider) SetNext(next *baseProvider) {
+func (e *provider) SetNext(next baseProvider) {
 	e.next = next
 }

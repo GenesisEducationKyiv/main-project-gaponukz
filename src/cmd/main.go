@@ -22,8 +22,8 @@ func main() {
 	coinstatsProviderHelper = exporter.NewLoggingDecorator(coinstatsProviderHelper, logger)
 	kukoinProviderHelper = exporter.NewLoggingDecorator(kukoinProviderHelper, logger)
 
-	baseRateProvider.SetNext(&coinstatsProviderHelper)
-	coinstatsProviderHelper.SetNext(&kukoinProviderHelper)
+	baseRateProvider.SetNext(coinstatsProviderHelper)
+	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
 
 	settings := settings.NewDotEnvSettings().Load()
 	storage := storage.NewJsonFileUserStorage("users.json")

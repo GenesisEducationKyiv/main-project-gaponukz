@@ -35,6 +35,6 @@ func (d loggingDecorator) Name() string {
 	return d.provider.Name()
 }
 
-func (d loggingDecorator) SetNext(next *baseProvider) {
+func (d loggingDecorator) SetNext(next baseProvider) {
 	d.provider.SetNext(next)
 }

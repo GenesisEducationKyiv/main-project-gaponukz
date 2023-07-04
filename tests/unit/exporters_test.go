@@ -34,8 +34,8 @@ func TestChainOfExporters(t *testing.T) {
 	baseRateProvider := exporter.NewCoingeckoExporter()
 	coinstatsProviderHelper := exporter.NewCoinstatsExporter()
 	kukoinProviderHelper := exporter.NewKucoinExporter()
-	baseRateProvider.SetNext(&coinstatsProviderHelper)
-	coinstatsProviderHelper.SetNext(&kukoinProviderHelper)
+	baseRateProvider.SetNext(coinstatsProviderHelper)
+	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
 
 	price, err := baseRateProvider.CurrentBTCPrice()
 
