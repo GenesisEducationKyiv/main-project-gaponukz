@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func getJson(url string, target interface{}) error {
+func loadJsonResponseBody(url string, target interface{}) error {
 	var myClient = &http.Client{Timeout: 10 * time.Second}
 	r, err := myClient.Get(url)
 

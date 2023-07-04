@@ -15,7 +15,7 @@ func NewCoingeckoExporter() baseProvider {
 		var apiResponse coingeckoResponse
 		const ApiUrl = "https://api.coingecko.com/api/v3/simple/price"
 
-		err := getJson(fmt.Sprintf("%s?ids=bitcoin&vs_currencies=uah", ApiUrl), &apiResponse)
+		err := loadJsonResponseBody(fmt.Sprintf("%s?ids=bitcoin&vs_currencies=uah", ApiUrl), &apiResponse)
 		if err != nil {
 			return 0, err
 		}

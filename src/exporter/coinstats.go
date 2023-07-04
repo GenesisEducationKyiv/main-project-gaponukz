@@ -29,7 +29,7 @@ func NewCoinstatsExporter() baseProvider {
 		var apiResponse coinstatsResponse
 		const ApiUrl = "https://api.coinstats.app/public/v1/coins/bitcoin"
 
-		err := getJson(fmt.Sprintf("%s?currency=UAH", ApiUrl), &apiResponse)
+		err := loadJsonResponseBody(fmt.Sprintf("%s?currency=UAH", ApiUrl), &apiResponse)
 		if err != nil {
 			return 0, err
 		}
