@@ -15,9 +15,9 @@ type kucoinResponse struct {
 func NewKucoinExporter() baseProvider {
 	return providerChainFactory("kucoin", func() (float64, error) {
 		var apiResponse kucoinResponse
-		const ApiUrl = "https://api.kucoin.com/api/v1/prices"
+		const apiUrl = "https://api.kucoin.com/api/v1/prices"
 
-		err := loadJsonResponseBody(fmt.Sprintf("%s?currencies=BTC&base=UAH", ApiUrl), &apiResponse)
+		err := loadJsonResponseBody(fmt.Sprintf("%s?currencies=BTC&base=UAH", apiUrl), &apiResponse)
 		if err != nil {
 			return 0, err
 		}

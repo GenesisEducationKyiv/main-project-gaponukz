@@ -1,5 +1,7 @@
 package exporter
 
+type fetchRateFunction func() (float64, error)
+
 type baseProvider interface {
 	CurrentBTCPrice() (float64, error)
 	SetNext(baseProvider)
@@ -9,10 +11,10 @@ type baseProvider interface {
 type provider struct {
 	name      string
 	next      baseProvider
-	fetchRate func() (float64, error)
+	fetchRate fetchRateFunction
 }
 
-func providerChainFactory(name string, fetchRate func() (float64, error)) baseProvider {
+func providerChainFactory(name string, fetchRate fetchRateFunction) baseProvider {
 	return &provider{name: name, fetchRate: fetchRate}
 }
 

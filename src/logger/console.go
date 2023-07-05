@@ -1,6 +1,9 @@
 package logger
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type consoleLogger struct{}
 
@@ -9,7 +12,9 @@ func NewConsoleLogger() consoleLogger {
 }
 
 func (l consoleLogger) log(lvl, message string) {
-	fmt.Printf("%s: %s\n", lvl, message)
+	currentTime := time.Now()
+	formattedTime := currentTime.Format("2006-01-02 15:04:05")
+	fmt.Printf("%s | %s | %s\n", formattedTime, lvl, message)
 }
 
 func (l consoleLogger) Info(message string) {

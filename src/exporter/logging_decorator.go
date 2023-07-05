@@ -25,7 +25,7 @@ func (d loggingDecorator) CurrentBTCPrice() (float64, error) {
 	if err != nil {
 		d.logger.Warn(fmt.Sprintf("could not get rate with %s because of %v", name, err))
 	} else {
-		d.logger.Info(fmt.Sprintf("current BTC price according to %s is %f", d.provider.Name(), rate))
+		d.logger.Info(fmt.Sprintf("current BTC price according to %s is %f", name, rate))
 	}
 
 	return rate, err
