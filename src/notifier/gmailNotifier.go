@@ -29,16 +29,8 @@ func NewGmailNotifier(gmailServer, gmail, password string) *gmailNotifier {
 }
 
 func (n gmailNotifier) Notify(to string, title, body string) error {
-	letter := strings.Replace(n.letterTemplate, "{%BTCPRICE%}", body, -1)
+	message := generateGmailLetter(n.letterTemplate, to, title, body)
 
-	message := []byte(
-		"To: " + to + "\r\n" +
-			"Subject: " + title + "\r\n" +
-			"MIME-Version: 1.0\r\n" +
-			"Content-Type: text/html; charset=\"UTF-8\"\r\n" +
-			"\r\n" +
-			letter + "\r\n",
-	)
 	return smtp.SendMail(
 		fmt.Sprintf("%s:587", n.gmailServer),
 		n.auth,
@@ -46,6 +38,17 @@ func (n gmailNotifier) Notify(to string, title, body string) error {
 		[]string{to},
 		[]byte(message),
 	)
+}
+
+func generateGmailLetter(template, to, title, body string) string {
+	letter := strings.Replace(template, "{%BTCPRICE%}", body, -1)
+
+	return "To: " + to + "\r\n" +
+		"Subject: " + title + "\r\n" +
+		"MIME-Version: 1.0\r\n" +
+		"Content-Type: text/html; charset=\"UTF-8\"\r\n" +
+		"\r\n" +
+		letter + "\r\n"
 }
 
 func getGmailLetter(filename string) (string, error) {
