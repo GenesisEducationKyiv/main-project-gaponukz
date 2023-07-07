@@ -9,7 +9,6 @@ import (
 	"btcapp/src/notifier"
 	"btcapp/src/settings"
 	"btcapp/src/storage"
-	"btcapp/src/usecase"
 )
 
 func main() {
@@ -28,6 +27,7 @@ func main() {
 	settings := settings.NewDotEnvSettings().Load()
 	storage := storage.NewJsonFileUserStorage("users.json")
 	notifier := notifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
+
 	service := usecase.NewService(storage, baseRateProvider, notifier)
 
 	contr := controller.NewController(service)

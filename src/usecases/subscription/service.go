@@ -16,6 +16,10 @@ type subscriptionService struct {
 	us userStorage
 }
 
+func NewSubscriptionService(us userStorage) subscriptionService {
+	return subscriptionService{us: us}
+}
+
 func (s subscriptionService) All(filter filterFunction) ([]entities.User, error) {
 	if filter == nil {
 		filter = func(user entities.User) bool { return true }

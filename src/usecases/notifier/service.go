@@ -13,7 +13,11 @@ type notifierService struct {
 	n notifier
 }
 
-func (s *notifierService) NotifyBTCPrice(users []entities.User, price entities.Price) {
+func NewNotifierService(n notifier) notifierService {
+	return notifierService{n: n}
+}
+
+func (s notifierService) NotifyBTCPrice(users []entities.User, price entities.Price) {
 	var (
 		title = "BTC price update!"
 		body  = fmt.Sprintf("%f", price)
