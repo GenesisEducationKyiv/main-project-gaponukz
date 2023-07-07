@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	"btcapp/src/controller"
+	"btcapp/src/file_storage"
+	"btcapp/src/gmail_notifier"
 	"btcapp/src/logger"
-	gmailNotifier "btcapp/src/notifier"
 	"btcapp/src/providers"
 	"btcapp/src/settings"
-	"btcapp/src/storage"
 	"btcapp/src/usecases/currency_rate"
 	"btcapp/src/usecases/notifier"
 	"btcapp/src/usecases/subscription"
@@ -28,9 +28,9 @@ func main() {
 	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
 
 	settings := settings.NewDotEnvSettings().Load()
-	storage := storage.NewJsonFileUserStorage("users.json")
-	gn := gmailNotifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
-	loggeredNotifier := gmailNotifier.NewLoggingDecorator(gn, logger)
+	storage := file_storage.NewJsonFileUserStorage("users.json")
+	gmailNotifier := gmail_notifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
+	loggeredNotifier := gmail_notifier.NewLoggingDecorator(gmailNotifier, logger)
 
 	rateService := currency_rate.NewCurrencyRateService(baseRateProvider)
 	notifierService := notifier.NewNotifierService(loggeredNotifier)

@@ -2,7 +2,7 @@ package integration
 
 import (
 	"btcapp/src/entities"
-	"btcapp/src/storage"
+	"btcapp/src/file_storage"
 	"btcapp/src/usecases/currency_rate"
 	"btcapp/src/usecases/notifier"
 	"btcapp/src/usecases/subscription"
@@ -28,7 +28,7 @@ func TestIntegration(t *testing.T) {
 	}()
 
 	var lastSendedMessage mocks.Message
-	db := storage.NewJsonFileUserStorage(testFilename)
+	db := file_storage.NewJsonFileUserStorage(testFilename)
 	ex := mocks.NewExporterStub(expectedPrice)
 	n := mocks.NewMockNotifier(func(m mocks.Message) { lastSendedMessage = m })
 

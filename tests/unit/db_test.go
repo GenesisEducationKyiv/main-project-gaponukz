@@ -2,7 +2,7 @@ package unit
 
 import (
 	"btcapp/src/entities"
-	"btcapp/src/storage"
+	"btcapp/src/file_storage"
 	"os"
 	"testing"
 )
@@ -29,7 +29,7 @@ func TestJsonDatabase(t *testing.T) {
 		os.Remove(testFilename)
 	}()
 
-	s := storage.NewJsonFileUserStorage(testFilename)
+	s := file_storage.NewJsonFileUserStorage(testFilename)
 
 	checkEmptiness(s, t)
 	checkCreations(s, t)
