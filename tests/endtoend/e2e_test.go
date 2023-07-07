@@ -3,7 +3,9 @@ package endtoend
 import (
 	"btcapp/src/controller"
 	"btcapp/src/storage"
-	"btcapp/src/usecase"
+	"btcapp/src/usecases/currency_rate"
+	"btcapp/src/usecases/notifier"
+	"btcapp/src/usecases/subscription"
 	"btcapp/tests/mocks"
 	"fmt"
 	"io"
@@ -61,12 +63,15 @@ func TestHTTPRoutes(t *testing.T) {
 }
 
 func startTestServer(freePort int, testFilename string) {
-	storage := storage.NewJsonFileUserStorage(testFilename)
-	priceExporter := mocks.NewExporterStub(expectedPrice)
-	notifier := mocks.NewMockNotifier(func(m mocks.Message) {})
-	service := usecase.NewService(storage, priceExporter, notifier)
+	db := storage.NewJsonFileUserStorage(testFilename)
+	ex := mocks.NewExporterStub(expectedPrice)
+	n := mocks.NewMockNotifier(func(m mocks.Message) {})
 
-	contr := controller.NewController(service)
+	rateService := currency_rate.NewCurrencyRateService(ex)
+	notifierService := notifier.NewNotifierService(n)
+	subscriptionService := subscription.NewSubscriptionService(db)
+
+	contr := controller.NewController(rateService, notifierService, subscriptionService)
 	app := controller.GetApp(contr, fmt.Sprintf("%d", freePort))
 
 	err := app.ListenAndServe()

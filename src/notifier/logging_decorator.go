@@ -4,7 +4,7 @@ import "fmt"
 
 type logger interface {
 	Info(string)
-	Warning(string)
+	Warn(string)
 }
 
 type notifier interface {
@@ -20,11 +20,11 @@ func NewLoggingDecorator(n notifier, l logger) decorator {
 	return decorator{n, l}
 }
 
-func (d *decorator) Notify(to, title, body string) error {
+func (d decorator) Notify(to, title, body string) error {
 	err := d.n.Notify(to, title, body)
 
 	if err != nil {
-		d.l.Warning(fmt.Sprintf("Failed to send message to %s: %v", to, err))
+		d.l.Warn(fmt.Sprintf("Failed to send message to %s: %v", to, err))
 
 	} else {
 		d.l.Info(fmt.Sprintf("Successfully sent message to %s", to))

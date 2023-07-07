@@ -24,6 +24,9 @@ func (s notifierService) NotifyBTCPrice(users []entities.User, price entities.Pr
 	)
 
 	for _, user := range users {
-		s.n.Notify(user.Gmail, title, body)
+		err := s.n.Notify(user.Gmail, title, body)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+		}
 	}
 }
