@@ -11,7 +11,7 @@ type userStorage interface {
 }
 
 type rateExporter interface {
-	GetCurrentBTCPrice() (float64, error)
+	CurrentBTCPrice() (float64, error)
 }
 
 type notier interface {
@@ -29,7 +29,7 @@ func NewService(s userStorage, e rateExporter, n notier) *service {
 }
 
 func (s service) GetCurrentPrice() (float64, error) {
-	return s.exporter.GetCurrentBTCPrice()
+	return s.exporter.CurrentBTCPrice()
 }
 
 func (s service) SubscribeUser(user entities.User) error {
@@ -42,7 +42,7 @@ func (s service) NotifySubscribers() error {
 		return err
 	}
 
-	btcPrice, err := s.exporter.GetCurrentBTCPrice()
+	btcPrice, err := s.exporter.CurrentBTCPrice()
 	if err != nil {
 		return err
 	}
