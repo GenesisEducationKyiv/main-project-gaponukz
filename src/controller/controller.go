@@ -12,12 +12,12 @@ type rateService interface {
 }
 
 type notifierService interface {
-	NotifyBTCPrice(users []entities.User, price entities.Price)
+	NotifyBTCPrice([]entities.User, entities.Price)
 }
 
 type subscriptionService interface {
-	SubscribeUser(user entities.User) error
-	All(filter func(entities.User) bool) ([]entities.User, error)
+	SubscribeUser(entities.User) error
+	All(func(entities.User) bool) ([]entities.User, error)
 }
 
 type controller struct {
