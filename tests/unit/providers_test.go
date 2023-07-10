@@ -32,13 +32,14 @@ func TestExporters(t *testing.T) {
 }
 
 func TestChainOfProviders(t *testing.T) {
-	baseRateProvider := providers.NewCoingeckoProvider()
+	coingeckoProvider := providers.NewCoingeckoProvider()
 	coinstatsProviderHelper := providers.NewCoinstatsProvider()
 	kukoinProviderHelper := providers.NewKucoinProvider()
-	baseRateProvider.SetNext(coinstatsProviderHelper)
+
+	coingeckoProvider.SetNext(coinstatsProviderHelper)
 	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
 
-	price, err := baseRateProvider.CurrentRate("BTC", "UAH")
+	price, err := coingeckoProvider.CurrentRate("BTC", "UAH")
 
 	if err != nil {
 		t.Error(err.Error())

@@ -17,7 +17,7 @@ type notifierService interface {
 
 type subscriptionService interface {
 	SubscribeUser(entities.User) error
-	All(func(entities.User) bool) ([]entities.User, error)
+	All() ([]entities.User, error)
 }
 
 type controller struct {
@@ -62,7 +62,7 @@ func (c controller) SubscribeRouter(responseWriter http.ResponseWriter, request 
 }
 
 func (c controller) SendEmailsRouter(responseWriter http.ResponseWriter, request *http.Request) {
-	users, err := c.ss.All(nil)
+	users, err := c.ss.All()
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return

@@ -18,25 +18,8 @@ func NewSubscriptionService(us userStorage) subscriptionService {
 	return subscriptionService{us: us}
 }
 
-func (s subscriptionService) All(filter func(entities.User) bool) ([]entities.User, error) {
-	if filter == nil {
-		filter = func(user entities.User) bool { return true }
-	}
-
-	users, err := s.us.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
-	var filtered []entities.User
-
-	for _, user := range users {
-		if filter(user) {
-			filtered = append(filtered, user)
-		}
-	}
-
-	return filtered, nil
+func (s subscriptionService) All() ([]entities.User, error) {
+	return s.us.GetAll()
 }
 
 func (s subscriptionService) SubscribeUser(user entities.User) error {
