@@ -2,15 +2,17 @@ package unit
 
 import (
 	"btcapp/src/entities"
-	"btcapp/src/usecase"
+	"btcapp/src/usecases/currency_rate"
+	"btcapp/src/usecases/notifier"
+	"btcapp/src/usecases/subscription"
 	"btcapp/tests/mocks"
 	"fmt"
 	"testing"
 )
 
-func TestSubscribeUser(t *testing.T) {
-	storage := NewStorageMock()
-	service := usecase.NewService(storage, nil, nil)
+func TestSubscriptionService(t *testing.T) {
+	storage := mocks.NewStorageMock()
+	service := subscription.NewSubscriptionService(storage)
 	testUser := entities.User{Gmail: "test1"}
 
 	err := service.SubscribeUser(testUser)
@@ -21,14 +23,19 @@ func TestSubscribeUser(t *testing.T) {
 	if !storage.Contains(testUser) {
 		t.Error("after subscription, the user is not saved to storage")
 	}
+
+	err = service.SubscribeUser(testUser)
+	if err == nil {
+		t.Error("can subscribe the same user twice")
+	}
 }
 
-func TestGetCurrentPrice(t *testing.T) {
+func TestCurrencyRateService(t *testing.T) {
 	const expected = 69.69
-	exporter := mocks.NewExporterStub(expected)
-	service := usecase.NewService(nil, exporter, nil)
+	provider := mocks.NewExporterStub(expected)
+	service := currency_rate.NewCurrencyRateService(provider)
 
-	price, err := service.GetCurrentPrice()
+	price, err := service.CurrentBTCRate()
 
 	if err != nil {
 		t.Errorf("Errog geting price: %s", err.Error())
@@ -43,21 +50,12 @@ func TestNotifySubscribers(t *testing.T) {
 	var mess mocks.Message
 	const expected = 69.69
 
+	n := mocks.NewMockNotifier(func(m mocks.Message) { mess = m })
+	service := notifier.NewNotifierService(n)
 	user := entities.User{Gmail: "test1"}
-	storage := NewStorageMock()
-	exporter := mocks.NewExporterStub(expected)
-	notifier := mocks.NewMockNotifier(func(m mocks.Message) { mess = m })
-	service := usecase.NewService(storage, exporter, notifier)
+	users := []entities.User{user}
 
-	err := storage.Create(user)
-	if err != nil {
-		t.Error(err.Error())
-	}
-
-	err = service.NotifySubscribers()
-	if err != nil {
-		t.Errorf("Errog notifying price: %s", err.Error())
-	}
+	service.NotifyBTCPrice(users, entities.Price(expected))
 
 	if mess.To != user.Gmail {
 		t.Errorf("Expected send to %s, got %s", user.Gmail, mess.To)

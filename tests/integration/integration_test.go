@@ -2,8 +2,10 @@ package integration
 
 import (
 	"btcapp/src/entities"
-	"btcapp/src/storage"
-	"btcapp/src/usecase"
+	"btcapp/src/file_storage"
+	"btcapp/src/usecases/currency_rate"
+	"btcapp/src/usecases/notifier"
+	"btcapp/src/usecases/subscription"
 	"btcapp/tests/mocks"
 	"fmt"
 	"os"
@@ -26,13 +28,22 @@ func TestIntegration(t *testing.T) {
 	}()
 
 	var lastSendedMessage mocks.Message
-	db := storage.NewJsonFileUserStorage(testFilename)
+	db := file_storage.NewJsonFileUserStorage(testFilename)
 	ex := mocks.NewExporterStub(expectedPrice)
 	n := mocks.NewMockNotifier(func(m mocks.Message) { lastSendedMessage = m })
-	s := usecase.NewService(db, ex, n)
+
+	rateService := currency_rate.NewCurrencyRateService(ex)
+	notifierService := notifier.NewNotifierService(n)
+	subscriptionService := subscription.NewSubscriptionService(db)
+
 	testUser1 := entities.User{Gmail: "testuser1"}
 
-	err = s.SubscribeUser(testUser1)
+	price, err := rateService.CurrentBTCRate()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	err = subscriptionService.SubscribeUser(testUser1)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -48,7 +59,8 @@ func TestIntegration(t *testing.T) {
 	}
 
 	user := users[index]
-	err = s.NotifySubscribers()
+
+	notifierService.NotifyBTCPrice(users, entities.Price(price))
 	if err != nil {
 		t.Error(err.Error())
 	}

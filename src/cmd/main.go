@@ -4,33 +4,39 @@ import (
 	"fmt"
 
 	"btcapp/src/controller"
-	"btcapp/src/exporter"
+	"btcapp/src/file_storage"
+	"btcapp/src/gmail_notifier"
 	"btcapp/src/logger"
-	"btcapp/src/notifier"
+	"btcapp/src/providers"
 	"btcapp/src/settings"
-	"btcapp/src/storage"
-	"btcapp/src/usecase"
+	"btcapp/src/usecases/currency_rate"
+	"btcapp/src/usecases/notifier"
+	"btcapp/src/usecases/subscription"
 )
 
 func main() {
 	logger := logger.NewConsoleLogger()
-	baseRateProvider := exporter.NewCoingeckoExporter()
-	coinstatsProviderHelper := exporter.NewCoinstatsExporter()
-	kukoinProviderHelper := exporter.NewKucoinExporter()
+	baseRateProvider := providers.NewCoingeckoProvider()
+	coinstatsProviderHelper := providers.NewCoinstatsProvider()
+	kukoinProviderHelper := providers.NewKucoinProvider()
 
-	baseRateProvider = exporter.NewLoggingDecorator(baseRateProvider, logger)
-	coinstatsProviderHelper = exporter.NewLoggingDecorator(coinstatsProviderHelper, logger)
-	kukoinProviderHelper = exporter.NewLoggingDecorator(kukoinProviderHelper, logger)
+	baseRateProvider = providers.NewLoggingDecorator(baseRateProvider, logger)
+	coinstatsProviderHelper = providers.NewLoggingDecorator(coinstatsProviderHelper, logger)
+	kukoinProviderHelper = providers.NewLoggingDecorator(kukoinProviderHelper, logger)
 
 	baseRateProvider.SetNext(coinstatsProviderHelper)
 	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
 
 	settings := settings.NewDotEnvSettings().Load()
-	storage := storage.NewJsonFileUserStorage("users.json")
-	notifier := notifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
-	service := usecase.NewService(storage, baseRateProvider, notifier)
+	storage := file_storage.NewJsonFileUserStorage("users.json")
+	gmailNotifier := gmail_notifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
+	loggeredNotifier := gmail_notifier.NewLoggingDecorator(gmailNotifier, logger)
 
-	contr := controller.NewController(service)
+	rateService := currency_rate.NewCurrencyRateService(baseRateProvider)
+	notifierService := notifier.NewNotifierService(loggeredNotifier)
+	subscriptionService := subscription.NewSubscriptionService(storage)
+
+	contr := controller.NewController(rateService, notifierService, subscriptionService)
 	app := controller.GetApp(contr, settings.Port)
 
 	fmt.Printf("⚡️[server]: Server is running at http://localhost:%s", settings.Port)

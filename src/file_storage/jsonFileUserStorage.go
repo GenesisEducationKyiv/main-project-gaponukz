@@ -1,4 +1,4 @@
-package storage
+package file_storage
 
 import (
 	"btcapp/src/entities"

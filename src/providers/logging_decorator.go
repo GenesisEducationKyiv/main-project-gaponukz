@@ -1,6 +1,7 @@
-package exporter
+package providers
 
 import (
+	"btcapp/src/entities"
 	"fmt"
 )
 
@@ -18,8 +19,8 @@ func NewLoggingDecorator(p baseProvider, l logger) loggingDecorator {
 	return loggingDecorator{provider: p, logger: l}
 }
 
-func (d loggingDecorator) CurrentBTCPrice() (float64, error) {
-	rate, err := d.provider.CurrentBTCPrice()
+func (d loggingDecorator) CurrentRate(from entities.Symbol, to entities.Symbol) (entities.Price, error) {
+	rate, err := d.provider.CurrentRate(from, to)
 	name := d.provider.Name()
 
 	if err != nil {

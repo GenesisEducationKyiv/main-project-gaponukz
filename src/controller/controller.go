@@ -7,29 +7,38 @@ import (
 	"btcapp/src/entities"
 )
 
-type service interface {
-	GetCurrentPrice() (float64, error)
+type rateService interface {
+	CurrentBTCRate() (entities.Price, error)
+}
+
+type notifierService interface {
+	NotifyBTCPrice([]entities.User, entities.Price)
+}
+
+type subscriptionService interface {
 	SubscribeUser(entities.User) error
-	NotifySubscribers() error
+	All() ([]entities.User, error)
 }
 
 type controller struct {
-	service service
+	rs rateService
+	ns notifierService
+	ss subscriptionService
 }
 
-func NewController(service service) *controller {
-	return &controller{service: service}
+func NewController(rs rateService, ns notifierService, ss subscriptionService) *controller {
+	return &controller{rs: rs, ns: ns, ss: ss}
 }
 
 func (c controller) RateRouter(responseWriter http.ResponseWriter, request *http.Request) {
-	btcPrice, err := c.service.GetCurrentPrice()
+	btcPrice, err := c.rs.CurrentBTCRate()
 
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	stringPrice := strconv.FormatFloat(btcPrice, 'f', -1, 64)
+	stringPrice := strconv.FormatFloat(float64(btcPrice), 'f', -1, 64)
 	responseWriter.Write([]byte(stringPrice))
 }
 
@@ -40,7 +49,7 @@ func (c controller) SubscribeRouter(responseWriter http.ResponseWriter, request 
 		return
 	}
 
-	err := c.service.SubscribeUser(entities.User{
+	err := c.ss.SubscribeUser(entities.User{
 		Gmail: userGmail,
 	})
 
@@ -53,11 +62,18 @@ func (c controller) SubscribeRouter(responseWriter http.ResponseWriter, request 
 }
 
 func (c controller) SendEmailsRouter(responseWriter http.ResponseWriter, request *http.Request) {
-	err := c.service.NotifySubscribers()
+	users, err := c.ss.All()
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	price, err := c.rs.CurrentBTCRate()
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	c.ns.NotifyBTCPrice(users, price)
 	responseWriter.Write([]byte("Sended"))
 }

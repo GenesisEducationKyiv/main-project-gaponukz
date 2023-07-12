@@ -1,9 +1,11 @@
-package exporter
+package providers
 
-type fetchRateFunction func() (float64, error)
+import "btcapp/src/entities"
+
+type fetchRateFunction func(entities.Symbol, entities.Symbol) (entities.Price, error)
 
 type baseProvider interface {
-	CurrentBTCPrice() (float64, error)
+	CurrentRate(entities.Symbol, entities.Symbol) (entities.Price, error)
 	SetNext(baseProvider)
 	Name() string
 }
@@ -18,8 +20,8 @@ func providerChainFactory(name string, fetchRate fetchRateFunction) baseProvider
 	return &provider{name: name, fetchRate: fetchRate}
 }
 
-func (e *provider) CurrentBTCPrice() (float64, error) {
-	rate, err := e.fetchRate()
+func (e *provider) CurrentRate(from entities.Symbol, to entities.Symbol) (entities.Price, error) {
+	rate, err := e.fetchRate(from, to)
 	if err == nil {
 		return rate, nil
 	}
@@ -28,7 +30,7 @@ func (e *provider) CurrentBTCPrice() (float64, error) {
 		return 0, err
 	}
 
-	return e.next.CurrentBTCPrice()
+	return e.next.CurrentRate(from, to)
 }
 
 func (e *provider) Name() string {
