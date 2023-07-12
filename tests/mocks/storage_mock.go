@@ -1,4 +1,4 @@
-package unit
+package mocks
 
 import "btcapp/src/entities"
 

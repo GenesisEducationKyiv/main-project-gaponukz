@@ -11,7 +11,7 @@ import (
 )
 
 func TestSubscriptionService(t *testing.T) {
-	storage := NewStorageMock()
+	storage := mocks.NewStorageMock()
 	service := subscription.NewSubscriptionService(storage)
 	testUser := entities.User{Gmail: "test1"}
 
