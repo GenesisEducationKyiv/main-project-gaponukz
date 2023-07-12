@@ -1,6 +1,7 @@
 package settings
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -15,7 +16,7 @@ func NewDotEnvSettings() dotEnvSettings {
 func (sts dotEnvSettings) Load() Settings {
 	err := godotenv.Load()
 	if err != nil {
-		panic(err.Error())
+		fmt.Printf("Warning: can not load dot env: %v\n", err)
 	}
 
 	return Settings{
