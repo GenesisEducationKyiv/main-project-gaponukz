@@ -15,7 +15,9 @@ import (
 )
 
 func main() {
-	logger, err := rabbitmq_logger.NewRabbitMQLogger("amqp://guest:guest@localhost:5672/")
+	settings := settings.NewDotEnvSettings().Load()
+
+	logger, err := rabbitmq_logger.NewRabbitMQLogger(settings.RabbitMQUrl)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -31,7 +33,6 @@ func main() {
 	baseRateProvider.SetNext(coinstatsProviderHelper)
 	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
 
-	settings := settings.NewDotEnvSettings().Load()
 	storage := file_storage.NewJsonFileUserStorage("users.json")
 	gmailNotifier := gmail_notifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
 	loggeredNotifier := gmail_notifier.NewLoggingDecorator(gmailNotifier, logger)

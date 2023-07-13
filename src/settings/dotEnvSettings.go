@@ -24,5 +24,6 @@ func (sts dotEnvSettings) Load() Settings {
 		Gmail:         os.Getenv("gmail"),
 		GmailPassword: os.Getenv("gmailPassword"),
 		GmailServer:   os.Getenv("gmailServer"),
+		RabbitMQUrl:   os.Getenv("rabbitUrl"),
 	}
 }

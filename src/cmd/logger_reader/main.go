@@ -1,6 +1,7 @@
 package main
 
 import (
+	"btcapp/src/settings"
 	"fmt"
 	"log"
 
@@ -8,7 +9,8 @@ import (
 )
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	settings := settings.NewDotEnvSettings().Load()
+	conn, err := amqp.Dial(settings.RabbitMQUrl)
 	if err != nil {
 		log.Fatalf("unable to open connect to RabbitMQ server. Error: %v", err)
 	}
