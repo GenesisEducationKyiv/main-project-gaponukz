@@ -12,7 +12,7 @@ func getHelpers() []string {
 	return []string{
 		"btcapp/src/file_storage",
 		"btcapp/src/gmail_notifier",
-		"btcapp/src/logger",
+		"btcapp/src/rabbitmq_logger",
 		"btcapp/src/providers",
 		"btcapp/src/settings",
 	}

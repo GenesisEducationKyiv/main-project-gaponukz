@@ -82,16 +82,3 @@ func (r *rabbitMQLogger) Close() {
 	_ = r.ch.Close()
 	_ = r.conn.Close()
 }
-
-func main() {
-	logger, err := NewRabbitMQLogger("amqp://guest:guest@localhost:5672/")
-	if err != nil {
-		log.Fatalf("failed to create RabbitMQ logger. Error: %v", err)
-	}
-	defer logger.Close()
-
-	logger.Info("hello, world!")
-	logger.Warn("something went wrong")
-
-	time.Sleep(120 * time.Second)
-}
