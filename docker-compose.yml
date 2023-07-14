@@ -13,5 +13,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command: sh -c "sleep 10 && ./server"
     ports:
       - '8080:8080'
