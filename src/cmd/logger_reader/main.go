@@ -1,15 +1,32 @@
 package main
 
 import (
-	"btcapp/src/settings"
 	"fmt"
 	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+type rabbitmqLogsReaderSettings struct {
+	RabbitMQUrl  string
+	QueueName    string
+	ConsumerName string
+	LogLevel     string
+	ExchangeName string
+}
+
+func NewHardCodedSettings() rabbitmqLogsReaderSettings {
+	return rabbitmqLogsReaderSettings{
+		RabbitMQUrl:  "amqp://user:password@localhost:5672/",
+		QueueName:    "logging",
+		ConsumerName: "errors_reader",
+		LogLevel:     "error",
+		ExchangeName: "logs_exchange",
+	}
+}
+
 func main() {
-	settings := settings.NewDotEnvSettings().Load()
+	settings := NewHardCodedSettings()
 	conn, err := amqp.Dial(settings.RabbitMQUrl)
 	if err != nil {
 		log.Fatalf("unable to open connect to RabbitMQ server. Error: %v", err)
@@ -29,9 +46,9 @@ func main() {
 	}()
 
 	err = ch.QueueBind(
-		"logging",
-		"error",
-		"logs_exchange",
+		settings.QueueName,
+		settings.LogLevel,
+		settings.ExchangeName,
 		false,
 		nil,
 	)
@@ -40,13 +57,13 @@ func main() {
 	}
 
 	messages, err := ch.Consume(
-		"logging", // queue
-		"",        // consumer
-		true,      // auto-ack
-		false,     // exclusive
-		false,     // no-local
-		false,     // no-wait
-		nil,       // args
+		settings.QueueName,
+		settings.ConsumerName,
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		log.Fatalf("failed to register a consumer. Error: %v", err)
