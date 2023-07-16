@@ -28,26 +28,25 @@ func main() {
 		_ = ch.Close()
 	}()
 
-	q, err := ch.QueueDeclare(
-		"logging", // name
-		false,     // durable
-		false,     // delete when unused
-		false,     // exclusive
-		false,     // no-wait
-		nil,       // arguments
+	err = ch.QueueBind(
+		"logging",
+		"error",
+		"logs_exchange",
+		false,
+		nil,
 	)
 	if err != nil {
-		log.Fatalf("failed to declare a queue. Error: %v", err)
+		log.Fatalf("failed to queue bind. Error: %v", err)
 	}
 
 	messages, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		"logging", // queue
+		"",        // consumer
+		true,      // auto-ack
+		false,     // exclusive
+		false,     // no-local
+		false,     // no-wait
+		nil,       // args
 	)
 	if err != nil {
 		log.Fatalf("failed to register a consumer. Error: %v", err)
