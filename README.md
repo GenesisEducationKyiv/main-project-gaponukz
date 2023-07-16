@@ -20,6 +20,8 @@ Golang version of [gaponukz/GSES2-BTC-application](https://github.com/gaponukz/G
 ## Settings
 Before usage you need to create `.env` file:
 ```env
+rabbitUrl=amqp://user:password@localhost:5672/
+port=8080
 gmail=user@gmail.com
 gmailPassword=userpassowrf123
 ```
@@ -36,8 +38,7 @@ go build
 
 ### From docker
 ```bash
-docker pull gaponukz/gobtcapp
-docker run -d -p 8080:8080 --rm --env-file .env gaponukz/gobtcapp 
+docker-compose up -d
 ```
 ## Usage example
 Get current BTC price
