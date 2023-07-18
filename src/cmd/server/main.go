@@ -22,6 +22,8 @@ func main() {
 		panic(err.Error())
 	}
 
+	defer logger.Close()
+
 	baseRateProvider := providers.NewCoingeckoProvider()
 	coinstatsProviderHelper := providers.NewCoinstatsProvider()
 	kukoinProviderHelper := providers.NewKucoinProvider()

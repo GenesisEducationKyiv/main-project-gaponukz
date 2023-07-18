@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -15,18 +17,23 @@ type rabbitmqLogsReaderSettings struct {
 	ExchangeName string
 }
 
-func NewHardCodedSettings() rabbitmqLogsReaderSettings {
+func NewEnvSettings() rabbitmqLogsReaderSettings {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Printf("Warning: can not load dot env: %v\n", err)
+	}
+
 	return rabbitmqLogsReaderSettings{
-		RabbitMQUrl:  "amqp://user:password@localhost:5672/",
-		QueueName:    "logging",
-		ConsumerName: "errors_reader",
-		LogLevel:     "error",
-		ExchangeName: "logs_exchange",
+		RabbitMQUrl:  os.Getenv("localRabbitUrl"),
+		QueueName:    os.Getenv("queueName"),
+		ConsumerName: os.Getenv("consumerName"),
+		LogLevel:     os.Getenv("logLevel"),
+		ExchangeName: os.Getenv("exchangeName"),
 	}
 }
 
 func main() {
-	settings := NewHardCodedSettings()
+	settings := NewEnvSettings()
 	conn, err := amqp.Dial(settings.RabbitMQUrl)
 	if err != nil {
 		log.Fatalf("unable to open connect to RabbitMQ server. Error: %v", err)
