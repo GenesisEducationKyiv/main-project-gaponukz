@@ -20,17 +20,22 @@ Golang version of [gaponukz/GSES2-BTC-application](https://github.com/gaponukz/G
 ## Settings
 Before usage you need to create `.env` file:
 ```env
-rabbitUrl=amqp://user:password@localhost:5672/
+rabbitUrl=amqp://user:password@rabbitmq:5672/
 port=8080
 gmail=user@gmail.com
 gmailPassword=userpassowrf123
+localRabbitUrl=amqp://user:password@localhost:5672/
+queueName=logging
+consumerName=errors_reader
+logLevel=error
+exchangeName=logs_exchange
 ```
 
 ## Deploying
 ### From git (locally)
 ```bash
 git clone https://github.com/GenesisEducationKyiv/main-project-gaponukz.git
-cd main-project-gaponukz
+cd main-project-gaponukz/src/cmd/server/
 go mod download
 go build
 ./btcapp
