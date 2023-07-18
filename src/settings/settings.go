@@ -5,4 +5,5 @@ type Settings struct {
 	Gmail         string `json:"gmail"`
 	GmailPassword string `json:"gmailPassword"`
 	GmailServer   string `json:"gmailServer"`
+	RabbitMQUrl   string `json:"rabbitUrl"`
 }

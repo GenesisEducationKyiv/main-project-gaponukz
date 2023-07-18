@@ -7,7 +7,7 @@ import (
 
 type logger interface {
 	Info(string)
-	Warn(string)
+	Error(string)
 }
 
 type loggingDecorator struct {
@@ -24,7 +24,7 @@ func (d loggingDecorator) CurrentRate(from entities.Symbol, to entities.Symbol) 
 	name := d.provider.Name()
 
 	if err != nil {
-		d.logger.Warn(fmt.Sprintf("could not get rate with %s because of %v", name, err))
+		d.logger.Error(fmt.Sprintf("could not get rate with %s because of %v", name, err))
 	} else {
 		d.logger.Info(fmt.Sprintf("current BTC price according to %s is %f", name, rate))
 	}

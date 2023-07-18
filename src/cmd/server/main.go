@@ -6,8 +6,8 @@ import (
 	"btcapp/src/controller"
 	"btcapp/src/file_storage"
 	"btcapp/src/gmail_notifier"
-	"btcapp/src/logger"
 	"btcapp/src/providers"
+	"btcapp/src/rabbitmq_logger"
 	"btcapp/src/settings"
 	"btcapp/src/usecases/currency_rate"
 	"btcapp/src/usecases/notifier"
@@ -15,7 +15,15 @@ import (
 )
 
 func main() {
-	logger := logger.NewConsoleLogger()
+	settings := settings.NewDotEnvSettings().Load()
+
+	logger, err := rabbitmq_logger.NewRabbitMQLogger(settings.RabbitMQUrl)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	defer logger.Close()
+
 	baseRateProvider := providers.NewCoingeckoProvider()
 	coinstatsProviderHelper := providers.NewCoinstatsProvider()
 	kukoinProviderHelper := providers.NewKucoinProvider()
@@ -27,7 +35,6 @@ func main() {
 	baseRateProvider.SetNext(coinstatsProviderHelper)
 	coinstatsProviderHelper.SetNext(kukoinProviderHelper)
 
-	settings := settings.NewDotEnvSettings().Load()
 	storage := file_storage.NewJsonFileUserStorage("users.json")
 	gmailNotifier := gmail_notifier.NewGmailNotifier(settings.GmailServer, settings.Gmail, settings.GmailPassword)
 	loggeredNotifier := gmail_notifier.NewLoggingDecorator(gmailNotifier, logger)
@@ -41,7 +48,7 @@ func main() {
 
 	fmt.Printf("⚡️[server]: Server is running at http://localhost:%s", settings.Port)
 
-	err := app.ListenAndServe()
+	err = app.ListenAndServe()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
